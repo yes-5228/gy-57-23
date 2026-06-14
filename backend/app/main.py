@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes import appointments, coaches, dashboard, students
+from app.routes import appointments, coaches, dashboard, reviews, students
 from app.store import seed_data
 
 
@@ -30,3 +30,4 @@ app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"]
 app.include_router(students.router, prefix="/api/students", tags=["students"])
 app.include_router(coaches.router, prefix="/api/coaches", tags=["coaches"])
 app.include_router(appointments.router, prefix="/api/appointments", tags=["appointments"])
+app.include_router(reviews.router, prefix="/api/reviews", tags=["reviews"])

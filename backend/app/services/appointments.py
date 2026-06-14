@@ -3,7 +3,8 @@ from datetime import datetime
 from fastapi import HTTPException, status
 
 from app.models import Appointment, AppointmentStatus
-from app.schemas import AppointmentCreate, AppointmentRead
+from app.schemas import AppointmentCreate, AppointmentRead, AppointmentReadWithReview
+from app.services.reviews import get_review_by_appointment
 from app.store import appointments, cancel_rule, coaches, next_id, students
 
 
@@ -104,3 +105,29 @@ def cancel_appointment(appointment_id: int, reason: str) -> AppointmentRead:
     appointment.cancel_reason = reason
     appointments[appointment.id] = appointment
     return appointment_to_read(appointment)
+
+
+def complete_appointment(appointment_id: int) -> AppointmentReadWithReview:
+    appointment = appointments.get(appointment_id)
+    if not appointment:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Appointment not found")
+    if appointment.status == AppointmentStatus.completed:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Appointment already completed")
+    if appointment.status == AppointmentStatus.cancelled:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Cancelled appointments cannot be completed")
+
+    appointment.status = AppointmentStatus.completed
+    appointments[appointment.id] = appointment
+    return get_appointment_with_review(appointment_id)
+
+
+def get_appointment_with_review(appointment_id: int) -> AppointmentReadWithReview:
+    appointment = appointments.get(appointment_id)
+    if not appointment:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Appointment not found")
+    base = appointment_to_read(appointment)
+    review = get_review_by_appointment(appointment_id)
+    return AppointmentReadWithReview(
+        **base.model_dump(),
+        review=review,
+    )

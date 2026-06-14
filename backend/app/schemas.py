@@ -26,6 +26,11 @@ class CoachRead(CoachCreate):
     id: int
 
 
+class CoachReadWithRating(CoachRead):
+    avg_rating: float
+    review_count: int
+
+
 class AppointmentCreate(BaseModel):
     student_id: int
     coach_id: int
@@ -74,3 +79,24 @@ class DashboardSummary(BaseModel):
     active_bookings: int
     completed_hours: float
     cancel_rule: dict[str, int | bool]
+
+
+class CoachReviewCreate(BaseModel):
+    rating: int = Field(ge=1, le=5)
+    feedback: str = Field(min_length=5, max_length=500)
+
+
+class CoachReviewRead(BaseModel):
+    id: int
+    appointment_id: int
+    student_id: int
+    student_name: str
+    coach_id: int
+    coach_name: str
+    rating: int
+    feedback: str
+    created_at: datetime
+
+
+class AppointmentReadWithReview(AppointmentRead):
+    review: CoachReviewRead | None = None

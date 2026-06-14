@@ -37,6 +37,16 @@ class Appointment(BaseModel):
     cancel_reason: str | None = None
 
 
+class CoachReview(BaseModel):
+    id: int
+    appointment_id: int
+    student_id: int
+    coach_id: int
+    rating: int
+    feedback: str
+    created_at: datetime
+
+
 class CancelRule(BaseModel):
     min_hours_before_start: int = 2
     max_active_bookings_per_student: int = 3
